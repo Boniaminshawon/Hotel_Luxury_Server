@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -59,7 +59,22 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         // await client.connect();
 
-        const hotelUserCollection = client.db('hotel-luxury-user').collection('hotelUser');
+        const hotelRoomCollection = client.db('hotelLuxury').collection('rooms');
+
+
+        // room related api
+        app.get('/all-rooms', async (req, res) => {
+            const cursor = hotelRoomCollection.find();
+            const result = await cursor.toArray();
+
+            res.send(result);
+        });
+        app.get('/all-rooms/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = {_id: new ObjectId(id)};
+            const result = await hotelRoomCollection.findOne(query);
+            res.send(result)
+        })
 
 
 
