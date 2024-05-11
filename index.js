@@ -61,6 +61,34 @@ async function run() {
 
         const hotelRoomCollection = client.db('hotelLuxury').collection('rooms');
 
+        // jwt related api
+        app.post('/jwt', async (req, res) => {
+            const email = req.body
+            const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET, {
+                expiresIn: '365d',
+            })
+            res
+                .cookie('token', token, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+                })
+                .send({ success: true })
+        })
+
+        // Clear token 
+        app.get('/logout', (req, res) => {
+            res
+                .clearCookie('token', {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+                    maxAge: 0,
+                })
+                .send({ success: true })
+        });
+
+
 
         // room related api
         app.get('/all-rooms', async (req, res) => {
@@ -71,7 +99,7 @@ async function run() {
         });
         app.get('/all-rooms/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: new ObjectId(id)};
+            const query = { _id: new ObjectId(id) };
             const result = await hotelRoomCollection.findOne(query);
             res.send(result)
         })
