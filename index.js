@@ -31,10 +31,10 @@ const verifyToken = (req, res, next) => {
     if (token) {
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
             if (err) {
-                console.log(err)
+                // console.log(err)
                 return res.status(401).send({ message: 'unauthorized access' })
             }
-            console.log(decoded)
+            // console.log(decoded)
 
             req.user = decoded
             next()
@@ -66,7 +66,7 @@ async function run() {
         app.post('/jwt', async (req, res) => {
             const email = req.body
             const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET, {
-                expiresIn: '365d',
+                expiresIn: '30d',
             })
             res
                 .cookie('token', token, {
@@ -111,7 +111,7 @@ async function run() {
             console.log(result);
             res.send(result)
         });
-        app.get('/booking/:email', async (req, res) => {
+        app.get('/booking/:email',verifyToken, async (req, res) => {
 
             const result = await bookingsCollection.find({ email: req.params.email }).toArray();
 
@@ -123,7 +123,17 @@ async function run() {
             const result = await bookingsCollection.deleteOne(query)
             res.send(result)
         })
-    
+        app.patch('/bookings/:id', async (req, res) => {
+            const id = req.params.id
+            const date = req.body
+            const query = { _id: new ObjectId(id) }
+            const updateDoc = {
+                $set:date,
+            }
+            const result = await bookingsCollection.updateOne(query, updateDoc)
+            res.send(result)
+        })
+
 
 
 
