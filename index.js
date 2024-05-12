@@ -60,6 +60,7 @@ async function run() {
         // await client.connect();
 
         const hotelRoomCollection = client.db('hotelLuxury').collection('rooms');
+        const bookingsCollection = client.db('hotelLuxury').collection('bookings');
 
         // jwt related api
         app.post('/jwt', async (req, res) => {
@@ -101,6 +102,13 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await hotelRoomCollection.findOne(query);
+            res.send(result)
+        });
+
+        app.post('/booking', async (req, res) => {
+            const bookingData = req.body;
+            const result = await bookingsCollection.insertOne(bookingData);
+            console.log(result);
             res.send(result)
         })
 
