@@ -110,9 +110,20 @@ async function run() {
             const result = await bookingsCollection.insertOne(bookingData);
             console.log(result);
             res.send(result)
+        });
+        app.get('/booking/:email', async (req, res) => {
+
+            const result = await bookingsCollection.find({ email: req.params.email }).toArray();
+
+            res.send(result);
+        });
+        app.delete('/bookings/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: new ObjectId(id) }
+            const result = await bookingsCollection.deleteOne(query)
+            res.send(result)
         })
-
-
+    
 
 
 
