@@ -61,6 +61,7 @@ async function run() {
 
         const hotelRoomCollection = client.db('hotelLuxury').collection('rooms');
         const bookingsCollection = client.db('hotelLuxury').collection('bookings');
+        const reviewCollection = client.db('hotelLuxury').collection('review');
 
         // jwt related api
         app.post('/jwt', async (req, res) => {
@@ -113,7 +114,7 @@ async function run() {
             const result = await hotelRoomCollection.find({ feature: req.params.feature }).toArray();
 
             res.send(result);
-           
+
         });
 
         app.post('/booking', async (req, res) => {
@@ -176,8 +177,19 @@ async function run() {
         })
 
 
+        // post review
+        app.post('/review', async (req, res) => {
+            const reviewData = req.body;
+            const result = await reviewCollection.insertOne(reviewData);
 
-
+            res.send(result)
+        });
+        app.get('/review/:id', async (req, res) => {
+            const reviewId = req.params.reviewId;
+            const query = {reviewId}
+            const result = await reviewCollection.find(query).toArray();
+            res.send(result)
+        });
 
 
 
