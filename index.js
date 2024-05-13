@@ -94,7 +94,7 @@ async function run() {
         // room related api
         app.get('/all-rooms', async (req, res) => {
             const filter = req.query.filter;
-            let query={};
+            let query = {};
             if (filter) query.price_range = filter
             // if(filter) query= {price_range};
             const cursor = hotelRoomCollection.find(query);
@@ -108,6 +108,13 @@ async function run() {
             const result = await hotelRoomCollection.findOne(query);
             res.send(result)
         });
+        app.get('/feature/:feature', async (req, res) => {
+            const feature = req.params.feature;
+            const result = await hotelRoomCollection.find({ feature: req.params.feature }).toArray();
+
+            res.send(result);
+           
+        });
 
         app.post('/booking', async (req, res) => {
             const bookingData = req.body;
@@ -119,7 +126,7 @@ async function run() {
 
             }
             const alreadyBooked = await bookingsCollection.findOne(query)
-            
+
             if (alreadyBooked) {
                 return res
                     .status(400)
