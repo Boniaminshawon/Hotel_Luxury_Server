@@ -107,11 +107,30 @@ async function run() {
 
         app.post('/booking', async (req, res) => {
             const bookingData = req.body;
+
+            // check if its a duplicate request
+            const query = {
+                email: bookingData.email,
+                roomId: bookingData.roomId
+
+            }
+            const alreadyBooked = await bookingsCollection.findOne(query)
+        
+            if (alreadyBooked) {
+                return res
+                    .status(400)
+                    .send('You have already booked this room.')
+            }
+
             const result = await bookingsCollection.insertOne(bookingData);
-            console.log(result);
             res.send(result)
         });
-        app.get('/booking/:email',verifyToken, async (req, res) => {
+        app.get('/booking/:email', verifyToken, async (req, res) => {
+            const tokenEmail = req.user.email
+            const email = req.params.email
+            if (tokenEmail !== email) {
+                return res.status(403).send({ message: 'forbidden access' })
+            }
 
             const result = await bookingsCollection.find({ email: req.params.email }).toArray();
 
@@ -128,9 +147,20 @@ async function run() {
             const date = req.body
             const query = { _id: new ObjectId(id) }
             const updateDoc = {
-                $set:date,
+                $set: date,
             }
             const result = await bookingsCollection.updateOne(query, updateDoc)
+            res.send(result)
+        })
+        // Update  status
+        app.patch('/status/:id', async (req, res) => {
+            const id = req.params.id
+            const status = req.body
+            const query = { _id: new ObjectId(id) }
+            const updateDoc = {
+                $set: status,
+            }
+            const result = await hotelRoomCollection.updateOne(query, updateDoc)
             res.send(result)
         })
 
