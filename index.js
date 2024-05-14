@@ -181,12 +181,20 @@ async function run() {
         app.post('/review', async (req, res) => {
             const reviewData = req.body;
             const result = await reviewCollection.insertOne(reviewData);
+            // update review in rooms collectin
+            const updateDoc = {
+                $inc: { review: 1 },
+            }
+            const reviewQuery = { _id: new ObjectId(reviewData.reviewId) }
+            const updateReview = await hotelRoomCollection.updateOne(reviewQuery, updateDoc)
+            console.log(updateReview)
 
             res.send(result)
         });
-        app.get('/review/:id', async (req, res) => {
+        app.get('/review/:reviewId', async (req, res) => {
             const reviewId = req.params.reviewId;
-            const query = {reviewId}
+
+            const query = { reviewId }
             const result = await reviewCollection.find(query).toArray();
             res.send(result)
         });
