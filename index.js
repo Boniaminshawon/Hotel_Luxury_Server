@@ -187,10 +187,20 @@ async function run() {
             }
             const reviewQuery = { _id: new ObjectId(reviewData.reviewId) }
             const updateReview = await hotelRoomCollection.updateOne(reviewQuery, updateDoc)
-            console.log(updateReview)
+           
 
             res.send(result)
         });
+        app.get('/reviews', async (req, res) => {
+            // const sort = req.query.sort;
+            // let options = {}
+            // if (sort) options = { sort: { somoy: sort === 'dsc' && -1 } }
+            const cursor = reviewCollection.find();
+            const result = await cursor.toArray();
+       
+            res.send(result);
+        });
+
         app.get('/review/:reviewId', async (req, res) => {
             const reviewId = req.params.reviewId;
 
