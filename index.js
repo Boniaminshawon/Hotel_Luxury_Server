@@ -137,7 +137,7 @@ async function run() {
             const result = await bookingsCollection.insertOne(bookingData);
             res.send(result)
         });
-        app.get('/booking/:email', verifyToken, async (req, res) => {
+        app.get('/booking/:email', async (req, res) => {
             const tokenEmail = req.user.email
             const email = req.params.email
             if (tokenEmail !== email) {
