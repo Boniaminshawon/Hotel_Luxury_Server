@@ -12,7 +12,7 @@ const port = process.env.PORT || 5000;
 const corsOptions = {
     origin: [
         'http://localhost:5173',
-        'http://localhost:5174',
+        'http://localhost:5177',
         'https://hotel-luxury-6656d.web.app',
         'https://hotel-luxury-6656d.firebaseapp.com'
 
@@ -93,9 +93,20 @@ async function run() {
 
 
         // room related api
+        app.post('/all-rooms', async (req, res) => {
+            const roomInfo = req.body;
+            const result = await hotelRoomCollection.insertOne(roomInfo);
+            res.send(result);
+        })
         app.get('/all-rooms', async (req, res) => {
             const filter = req.query.filter;
-            let query = {};
+            const search = req.query.search;
+            console.log(search)
+            let query = {
+                // status: { $regex: search, $options: 'i' },
+                // room_size: { $regex: search, $options: 'i' }
+            }
+          
             if (filter) query.price_range = filter
             // if(filter) query= {price_range};
             const cursor = hotelRoomCollection.find(query);
@@ -109,6 +120,23 @@ async function run() {
             const result = await hotelRoomCollection.findOne(query);
             res.send(result)
         });
+        app.put('/all-rooms/:id', async (req, res) => {
+            const roomInfo = req.body;
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: roomInfo
+            }
+            const result = await hotelRoomCollection.updateOne(query, updateDoc);
+
+            res.send(result)
+        })
+        app.delete('/all-rooms/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await hotelRoomCollection.deleteOne(query);
+            res.send(result);
+        })
         app.get('/feature/:feature', async (req, res) => {
             const feature = req.params.feature;
             const result = await hotelRoomCollection.find({ feature: req.params.feature }).toArray();
@@ -138,11 +166,11 @@ async function run() {
             res.send(result)
         });
         app.get('/booking/:email', async (req, res) => {
-            const tokenEmail = req.user.email
+            // const tokenEmail = req.user.email
             const email = req.params.email
-            if (tokenEmail !== email) {
-                return res.status(403).send({ message: 'forbidden access' })
-            }
+            // if (tokenEmail !== email) {
+            //     return res.status(403).send({ message: 'forbidden access' })
+            // }
 
             const result = await bookingsCollection.find({ email: req.params.email }).toArray();
 
@@ -187,7 +215,7 @@ async function run() {
             }
             const reviewQuery = { _id: new ObjectId(reviewData.reviewId) }
             const updateReview = await hotelRoomCollection.updateOne(reviewQuery, updateDoc)
-           
+
 
             res.send(result)
         });
@@ -197,7 +225,7 @@ async function run() {
             // if (sort) options = { sort: { somoy: sort === 'dsc' && -1 } }
             const cursor = reviewCollection.find();
             const result = await cursor.toArray();
-       
+
             res.send(result);
         });
 
